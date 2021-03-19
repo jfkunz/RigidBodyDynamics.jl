@@ -14,7 +14,16 @@ The 3-dimensional velocity vector ``v`` associated with a `QuaternionSpherical` 
 the angular velocity of the frame after the joint with respect to the frame before
 the joint, expressed in the frame after the joint (body frame).
 """
-struct QuaternionSpherical{T} <: JointType{T} end
+struct QuaternionSpherical{T} <: JointType{T} 
+    @doc """
+    $(SIGNATURES)
+    Construct a QuaternionSpherical joint. Hint: use QuaternionSpherical{Float64}() for instantiation.
+    """ ->
+    function QuaternionSpherical{T}() where {T}
+        new{T}()
+    end
+end
+
 
 Base.show(io::IO, jt::QuaternionSpherical) = print(io, "Quaternion spherical joint")
 Random.rand(::Type{QuaternionSpherical{T}}) where {T} = QuaternionSpherical{T}()

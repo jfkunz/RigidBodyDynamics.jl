@@ -10,7 +10,8 @@ function default_urdf_joint_types()
         "prismatic" => Prismatic,
         "floating" => QuaternionFloating,
         "fixed" => Fixed,
-        "planar" => Planar
+        "planar" => Planar,
+        "ball" => QuaternionSpherical
     )
 end
 
@@ -66,6 +67,8 @@ function parse_joint_type(::Type{T}, xml_joint::XMLElement, joint_types::Abstrac
         x_axis = R * SVector(1, 0, 0)
         y_axis = R * SVector(0, 1, 0)
         return joint_type(x_axis, y_axis)
+    elseif urdf_joint_type == "ball"
+        return joint_type{T}()
     else
         error("joint type $(urdf_joint_type) not recognized")
     end
