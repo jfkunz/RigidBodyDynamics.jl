@@ -101,7 +101,7 @@ where the ``f_{j}^{i}`` are forces expressed in frame ``i``, exerted at
 positions ``r_{j}^{i}``. ``\\tau^i`` is the total torque and ``f^i`` is the
 total force.
 """
-mutable struct Wrench{T}
+struct Wrench{T}
     frame::CartesianFrame3D
     angular::SVector{3, T}
     linear::SVector{3, T}

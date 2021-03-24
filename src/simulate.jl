@@ -13,10 +13,10 @@ end
 """
 $(SIGNATURES)
 
-A trivial contoller that does not modify the initial external wrenches.
+A trivial contoller that does not apply wrenches.
 """
-function constant_wrenches!(externalwrenches::AbstractDict{BodyID, <:Wrench}, t, state::MechanismState)
-    nothing
+function no_wrenches(t, state::MechanismState)
+    NullDict{BodyID, Wrench{Float64}}()
 end
 
 """
@@ -43,15 +43,15 @@ $stabilization_gains_doc
 Uses `MuntheKaasIntegrator`. See [`RigidBodyDynamics.OdeIntegrators.MuntheKaasIntegrator`](@ref) for a lower
 level interface with more options.
 """
-function simulate(state0::MechanismState{X}, final_time, control! = zero_torque!, control_wrenches! = constant_wrenches!;
-        Δt = 1e-4, stabilization_gains=default_constraint_stabilization_gains(X), externalwrenches::AbstractDict{BodyID, <:Wrench}=NullDict{BodyID, Wrench{X}}()) where X
+function simulate(state0::MechanismState{X}, final_time, control! = zero_torque!, wrench_contoller = no_wrenches;
+        Δt = 1e-4, stabilization_gains=default_constraint_stabilization_gains(X)) where X
     T = cache_eltype(state0)
     result = DynamicsResult{T}(state0.mechanism)
     control_torques = similar(velocity(state0))
     closed_loop_dynamics! = let result=result, control_torques=control_torques, stabilization_gains=stabilization_gains # https://github.com/JuliaLang/julia/issues/15276
         function (v̇::AbstractArray, ṡ::AbstractArray, t, state)
             control!(control_torques, t, state)
-            control_wrenches!(externalwrenches, t, state)
+            externalwrenches = wrench_contoller(t, state)
             dynamics!(result, state, control_torques, externalwrenches; stabilization_gains=stabilization_gains)
             copyto!(v̇, result.v̇)
             copyto!(ṡ, result.ṡ)
